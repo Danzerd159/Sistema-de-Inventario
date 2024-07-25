@@ -21,7 +21,7 @@ public class Producto {
     private String descripcion;
     private Date fechaCreacion;
     
-    @ManyToOne
+    @ManyToOne 
     private Proveedor proveedor;
 
     @ManyToOne

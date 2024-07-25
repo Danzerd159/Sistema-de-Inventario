@@ -23,6 +23,7 @@ public class Proveedor {
     private String telefono;
     
     @OneToMany(mappedBy = "proveedor")
+
     private List<Producto> productos;
     
     @ManyToOne
