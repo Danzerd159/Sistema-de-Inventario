@@ -30,9 +30,9 @@
 				<!-- DataTales Example -->
 				<div class="card shadow mb-4">
 					<div class="card-header d-sm-flex align-items-center justify-content-between mb-4">
-						<h6 class="m-0 font-weight-bold text-gray-800">Lista de Producto</h6>
+						<h6 class="m-0 font-weight-bold text-gray-800">Lista de Usuarios</h6>
 						<!-- Button trigger modal -->
-						<a type="button" class="btn btn-primary" data-toggle="modal" th:href="@{/producto/create}"
+						<a type="button" class="btn btn-primary" data-toggle="modal" th:href="@{/proveedor/create}"
 							data-target="#exampleModal">
 							<i class="fa fa-plus fa-sm text-white-50"></i> Nuevo</a>
 					</div>
@@ -42,29 +42,25 @@
 								<thead>
 									<tr>
 										<th>ID</th>
-										<th>Producto</th>
-										<th>Descripción</th>
-										<th>Fecha de creacion</th>
-										<th>Cantidad</th>
-										<th>Precio</th>
-										<th>Proveedor</th>
-										<th>Categoria</th>
+										<th>Nombre</th>
+										<th>Apellido</th>
+										<th>Correo</th>
+										<th>Rol</th>
+										<th>Contraseña</th>
 										<th>Editar</th>
 										<th>Eliminar</th>
 									</tr>
 								</thead>
 								<tbody>
-									<tr th:each="producto:${productos}">
-										<td th:text="${producto.id}"></td>
-										<td th:text="${producto.nombre}"></td>
-										<td th:text="${producto.descripcion}"></td>
-										<td th:text="${producto.fechaCreacion}"></td>
-										<td th:text="${producto.cantidad}"></td>
-										<td th:text="${producto.precio}"></td>
-										 <td th:text="${producto.proveedor != null ? producto.proveedor.nombre : 'Sin proveedor'}"></td>
-										 <td th:text="${producto.categoria != null ? producto.categoria.nombre : 'Sin categoria'}"></td>
-										<td><a class="btn btn-warning" th:href="@{/producto/edit/{id} (id=${producto.id})}">Editar</a> </td>
-										<td><a class="btn btn-danger" th:href="@{/producto/delete/{id} (id=${producto.id})}">Eliminar</a>
+									<tr th:each="usuario:${usuarios}">
+										<td th:text="${usuario.id}"></td>
+										<td th:text="${usuario.nombre}"></td>
+										<td th:text="${usuario.apellido}"></td>
+										<td th:text="${usuario.email}"></td>
+										<td th:text="${usuario.rol}"></td>
+										<td th:text="${usuario.password}"></td>
+										<td><a class="btn btn-warning" th:href="@{/usuario/edit/{id} (id=${usuario.id})}">Editar</a> </td>
+										<td><a class="btn btn-danger" th:href="@{/usuario/delete/{id} (id=${usuario.id})}">Eliminar</a>
 										</td>
 									</tr>
 								</tbody>

@@ -16,9 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.curso.jose.model.Categoria;
 import com.curso.jose.model.Producto;
 import com.curso.jose.model.Proveedor;
 import com.curso.jose.model.Usuario;
+import com.curso.jose.service.ICategoriaService;
 import com.curso.jose.service.IProductoService;
 import com.curso.jose.service.IProveedorService;
 import com.curso.jose.service.IUsuarioService;
@@ -29,7 +31,7 @@ import jakarta.servlet.http.HttpSession;
 @RequestMapping("/producto")
 public class ProductoController {
 	
-	private final  Logger logger = LoggerFactory.getLogger(ProductoController.class);
+	private final Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
 	@Autowired
 	private IProductoService iProductoService;
@@ -39,12 +41,16 @@ public class ProductoController {
 	
 	@Autowired
 	private IUsuarioService iUsuarioService;
-	
+
+	@Autowired
+	private ICategoriaService iCategoriaService;
 	
 	@GetMapping("/create")
 	public String create(Model modelo) {
         List<Proveedor> listaProveedor = iProveedorService.findAll();
+        List<Categoria> listaCategoria = iCategoriaService.findAll();
         modelo.addAttribute("listaProveedor", listaProveedor);
+        modelo.addAttribute("listaCategoria", listaCategoria);
         modelo.addAttribute("producto", new Producto()); 
 		return "producto/create";
 	}
@@ -71,9 +77,8 @@ public class ProductoController {
 	    return "producto/listado";
 	}
 
-	
 	@PostMapping("/save")
-	public String save(Model modelo, @RequestParam("proveedorId") Long proveedorId, Producto producto, HttpSession session) {
+	public String save(Model modelo, @RequestParam("proveedorId") Long proveedorId, @RequestParam("categoriaId") Long categoriaId, Producto producto, HttpSession session) {
 	    Date fechaCreacion = new Date();
 	    producto.setFechaCreacion(fechaCreacion);
 	    
@@ -86,6 +91,12 @@ public class ProductoController {
 	    if (proveedor != null) {
 	        producto.setProveedor(proveedor);
 	    }
+
+	    // Buscar la categoría y asignarla al producto
+	    Categoria categoria = iCategoriaService.get(categoriaId).orElse(null);
+	    if (categoria != null) {
+	        producto.setCategoria(categoria);
+	    }
 	    
 	    // Guardar el producto
 	    iProductoService.save(producto);
@@ -93,25 +104,39 @@ public class ProductoController {
 	    return "redirect:/producto/listado";
 	}
 	
-	
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable Long id, Model modelo) {
         Producto producto = new Producto();
         Optional<Producto> optionalProducto = iProductoService.get(id);
         producto = optionalProducto.get();
         List<Proveedor> listaProveedor = iProveedorService.findAll();
+        List<Categoria> listaCategoria = iCategoriaService.findAll();
         modelo.addAttribute("listaProveedor", listaProveedor);
+        modelo.addAttribute("listaCategoria", listaCategoria);
         modelo.addAttribute("producto", producto);
         return "producto/editar";
 	}
 	
 	@PostMapping("/update")
-	public String update(Producto producto) throws IOException {
+	public String update(@RequestParam("proveedorId") Long proveedorId, @RequestParam("categoriaId") Long categoriaId, Producto producto) throws IOException {
         Date fechaCreacion = new Date();
         producto.setFechaCreacion(fechaCreacion);
         Producto p = new Producto();
         p = iProductoService.get(producto.getId()).get();
         producto.setUsuario(p.getUsuario());
+
+        // Buscar el proveedor y asignarlo al producto
+        Proveedor proveedor = iProveedorService.get(proveedorId).orElse(null);
+        if (proveedor != null) {
+            producto.setProveedor(proveedor);
+        }
+
+        // Buscar la categoría y asignarla al producto
+        Categoria categoria = iCategoriaService.get(categoriaId).orElse(null);
+        if (categoria != null) {
+            producto.setCategoria(categoria);
+        }
+
         iProductoService.update(producto);
         return "redirect:/producto/listado";
 	}
@@ -123,5 +148,4 @@ public class ProductoController {
 		iProductoService.delete(id);
 		return "redirect:/producto/listado";
 	}
-	
 }
