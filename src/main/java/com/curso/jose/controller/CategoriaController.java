@@ -13,7 +13,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.curso.jose.model.Categoria;
+import com.curso.jose.model.Usuario;
 import com.curso.jose.service.ICategoriaService;
+import com.curso.jose.service.IUsuarioService;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/categoria")
@@ -21,6 +25,10 @@ public class CategoriaController {
 	
 	@Autowired
 	private ICategoriaService iCategoriaService; 
+	
+
+	@Autowired
+	private IUsuarioService iUsuarioService;
 	
 	@GetMapping("/listado")
 	public String listaCategoria(Model model) {
@@ -36,7 +44,9 @@ public class CategoriaController {
     }
 	
     @PostMapping("/save")
-    public String guardarCategoria(@ModelAttribute Categoria categoria) {
+    public String guardarCategoria(@ModelAttribute Categoria categoria, HttpSession session) {
+    	Usuario usuario = iUsuarioService.finById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
+    	categoria.setUsuario(usuario);
     	iCategoriaService.save(categoria);
         return "redirect:/categoria/listado";
     }

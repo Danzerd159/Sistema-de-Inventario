@@ -42,4 +42,17 @@ public class ProductoServiceImpl implements IProductoService{
 		return iProductoRepository.findAll();
 	}
 
+	@Override
+	public void addStock(Long id, Integer cantidad) {
+		  Optional<Producto> optionalProducto = iProductoRepository.findById(id);
+	        if (optionalProducto.isPresent()) {
+	            Producto producto = optionalProducto.get();
+	            producto.setCantidad(producto.getCantidad() + cantidad);
+	            iProductoRepository.save(producto);
+	        } else {
+	            throw new RuntimeException("Producto no encontrado con ID: " + id);
+	        }
+		
+	}
+
 }

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>Agregar Stock - SB Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+    <link th:href="@{/css/styles.css}" rel="stylesheet" />
+    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+</head>
+
+<body class="sb-nav-fixed">
+
+    <div th:include="template_admin.html::navbarmenu">
+    </div>
+
+    <div id="layoutSidenav">
+
+        <div th:include="template_admin.html::navbarleft">
+        </div>
+
+        <div id="layoutSidenav_content">
+
+            <div class="container-fluid">
+                <br>
+                <!-- Formulario para Añadir Stock -->
+                <div class="card shadow mb-4">
+                    <div class="card-header d-sm-flex align-items-center justify-content-between mb-4">
+                        <h6 class="m-0 font-weight-bold text-gray-800">Agregar Stock al Producto</h6>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/producto/addStock}" method="post">
+                            <input type="hidden" name="id" th:value="${producto.id}" />
+                            <div class="form-group">
+                                <label for="cantidad">Cantidad a Añadir:</label>
+                                <input type="number" id="cantidad" name="cantidad" class="form-control" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-3">Añadir Stock</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div th:include="template_admin.html::footer">
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script th:src="@{/js/scripts.js}"></script>
+</body>
+
+</html>

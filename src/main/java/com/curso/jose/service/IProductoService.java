@@ -11,4 +11,5 @@ public interface IProductoService {
 	public void update(Producto producto);
 	public void delete(Long id);
 	public List<Producto> findAll();
+	void addStock(Long id, Integer cantidad);
 }

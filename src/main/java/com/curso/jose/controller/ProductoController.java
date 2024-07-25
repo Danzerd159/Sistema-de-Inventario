@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.curso.jose.model.Categoria;
 import com.curso.jose.model.Producto;
@@ -81,28 +82,21 @@ public class ProductoController {
 	public String save(Model modelo, @RequestParam("proveedorId") Long proveedorId, @RequestParam("categoriaId") Long categoriaId, Producto producto, HttpSession session) {
 	    Date fechaCreacion = new Date();
 	    producto.setFechaCreacion(fechaCreacion);
-	    
-	    // Asignar usuario al producto
 	    Usuario usuario = iUsuarioService.finById(Long.parseLong(session.getAttribute("idusuario").toString())).get();
 	    producto.setUsuario(usuario);
-
-	    // Buscar el proveedor y asignarlo al producto
 	    Proveedor proveedor = iProveedorService.get(proveedorId).orElse(null);
 	    if (proveedor != null) {
 	        producto.setProveedor(proveedor);
 	    }
-
-	    // Buscar la categoría y asignarla al producto
 	    Categoria categoria = iCategoriaService.get(categoriaId).orElse(null);
 	    if (categoria != null) {
 	        producto.setCategoria(categoria);
 	    }
-	    
-	    // Guardar el producto
 	    iProductoService.save(producto);
 	    
 	    return "redirect:/producto/listado";
 	}
+
 	
 	@GetMapping("/edit/{id}")
 	public String edit(@PathVariable Long id, Model modelo) {
@@ -119,27 +113,22 @@ public class ProductoController {
 	
 	@PostMapping("/update")
 	public String update(@RequestParam("proveedorId") Long proveedorId, @RequestParam("categoriaId") Long categoriaId, Producto producto) throws IOException {
-        Date fechaCreacion = new Date();
-        producto.setFechaCreacion(fechaCreacion);
-        Producto p = new Producto();
-        p = iProductoService.get(producto.getId()).get();
-        producto.setUsuario(p.getUsuario());
-
-        // Buscar el proveedor y asignarlo al producto
-        Proveedor proveedor = iProveedorService.get(proveedorId).orElse(null);
-        if (proveedor != null) {
-            producto.setProveedor(proveedor);
-        }
-
-        // Buscar la categoría y asignarla al producto
-        Categoria categoria = iCategoriaService.get(categoriaId).orElse(null);
-        if (categoria != null) {
-            producto.setCategoria(categoria);
-        }
-
-        iProductoService.update(producto);
-        return "redirect:/producto/listado";
+	    Date fechaCreacion = new Date();
+	    producto.setFechaCreacion(fechaCreacion);
+	    Producto p = iProductoService.get(producto.getId()).get();
+	    producto.setUsuario(p.getUsuario());
+	    Proveedor proveedor = iProveedorService.get(proveedorId).orElse(null);
+	    if (proveedor != null) {
+	        producto.setProveedor(proveedor);
+	    }
+	    Categoria categoria = iCategoriaService.get(categoriaId).orElse(null);
+	    if (categoria != null) {
+	        producto.setCategoria(categoria);
+	    }
+	    iProductoService.update(producto);
+	    return "redirect:/producto/listado";
 	}
+
 	
 	@GetMapping("/delete/{id}")
 	public String delete(@PathVariable Long id) {
@@ -148,4 +137,52 @@ public class ProductoController {
 		iProductoService.delete(id);
 		return "redirect:/producto/listado";
 	}
+	
+	@PostMapping("/vender")
+	public String vender(@RequestParam("productoId") Long productoId, @RequestParam("cantidad") int cantidad) {
+	    Optional<Producto> optionalProducto = iProductoService.get(productoId);
+	    if (optionalProducto.isPresent()) {
+	        Producto producto = optionalProducto.get();
+	        int stockActual = producto.getCantidad();
+	        if (stockActual >= cantidad) {
+	            producto.setCantidad(stockActual - cantidad);
+	            iProductoService.update(producto);
+	        } else {
+	        	
+	        }
+	    }
+	    return "redirect:/producto/listado";
+	}
+	
+	@GetMapping("/vervender/{id}")
+	public String vervender(@PathVariable("id") Long id, Model model) {
+	    Optional<Producto> optionalProducto = iProductoService.get(id);
+	    if (optionalProducto.isPresent()) {
+	        Producto producto = optionalProducto.get();
+	        model.addAttribute("producto", producto);
+	        return "producto/vender"; 
+	    } else {
+	        return "redirect:/producto/listado"; 
+	    }
+	}
+	
+    @GetMapping("/addStock/{id}")
+    public String showAddStockForm(@PathVariable("id") Long id, Model model) {
+        Producto producto = iProductoService.get(id).orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        model.addAttribute("producto", producto);
+        return "producto/agregar";
+    }
+
+
+    @PostMapping("/addStock")
+    public String addStock(@RequestParam("id") Long id, @RequestParam("cantidad") Integer cantidad, RedirectAttributes redirectAttributes) {
+        try {
+        	iProductoService.addStock(id, cantidad);
+            redirectAttributes.addFlashAttribute("message", "Stock añadido exitosamente.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Error al añadir stock: " + e.getMessage());
+        }
+        return "redirect:/producto/listado"; // Redirige a la lista de productos o a donde sea necesario
+    }
 }
+
